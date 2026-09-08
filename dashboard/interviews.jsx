@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { generateInterviewQuestion } from "@/api/openai"
+import { generateInterviewQuestion } from "@/utils/interviewUtils"
 import { db } from "@/firebase/config"
 import { doc, getDoc } from "firebase/firestore"
 import { useAuth } from "@/auth/AuthProvider"

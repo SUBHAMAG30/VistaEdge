@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "@/auth/AuthProvider";
+import { useAuth } from "@/auth/AuthContext";
 import { db } from "@/firebase/config";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
