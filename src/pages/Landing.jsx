@@ -12,13 +12,13 @@ export default function Landing() {
     public static void main(String[] args) {
         System.out.println("Initializing AI Interview Engine...");
         
-        Candidate candidate = new Candidate();
-        candidate.connectLeetCode();
-        candidate.generateATSResume();
+        Candidate Subham = new Candidate();
+        Subham.connectLeetCode();
+        Subham.generateATSResume();
         
-        while (!candidate.isHired()) {
-            candidate.practiceDSA();
-            candidate.analyzeFeedback();
+        while (!Subham.isHired()) {
+            Subham.practiceDSA();
+            Subham.analyzeFeedback();
         }
         
         System.out.println("Offer Accepted. Welcome aboard!");
