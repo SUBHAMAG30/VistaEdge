@@ -14,10 +14,11 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 bg-white shadow-md min-h-screen p-6">
-      <h2 className="text-2xl font-bold text-blue-600 mb-8">VistaEdge</h2>
+    // Changed min-h-screen to h-full and added overflow-y-auto
+    <aside className="w-64 bg-white shadow-md h-full flex flex-col p-6 overflow-y-auto">
+      <h2 className="text-2xl font-bold text-blue-600 mb-8 mt-2 md:mt-0">VistaEdge</h2>
 
-      <nav className="space-y-2">
+      <nav className="space-y-2 flex-1">
         {navItems.map((item) => (
           <NavLink
             key={item.name}
