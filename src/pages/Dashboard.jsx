@@ -1,10 +1,12 @@
 // src/pages/Dashboard.jsx
 
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
+import { db } from "../firebase/config"; // Corrected Firebase import path
+import { collection, query, where, getDocs } from "firebase/firestore";
 import {
   BarChart3,
   FileText,
@@ -16,8 +18,57 @@ import {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user } = useAuth(); // get logged-in user
-  const userName = user?.displayName || "User";
+  const { user } = useAuth();
+  
+  // Set a personalized fallback name if displayName isn't set yet
+  const userName = user?.displayName || "Subham";
+
+  // State to hold the dynamic metrics
+  const [metrics, setMetrics] = useState({
+    interviewsCompleted: 0,
+    resumeScore: 0,
+    skillsImproved: 0,
+  });
+
+  // Fetch data from Firestore when the component mounts
+  useEffect(() => {
+    const fetchUserMetrics = async () => {
+      if (!user?.uid) return;
+
+      try {
+        // Fetch total interviews completed
+        const interviewsRef = collection(db, "interviews");
+        const interviewsQuery = query(interviewsRef, where("userId", "==", user.uid));
+        const interviewsSnapshot = await getDocs(interviewsQuery);
+        const totalInterviews = interviewsSnapshot.size;
+
+        // Fetch resume score (assuming you have a 'resumes' collection)
+        const resumesRef = collection(db, "resumes");
+        const resumesQuery = query(resumesRef, where("userId", "==", user.uid));
+        const resumesSnapshot = await getDocs(resumesQuery);
+        
+        let latestScore = 0;
+        if (!resumesSnapshot.empty) {
+          // Grab the score from the first/most recent document found
+          latestScore = resumesSnapshot.docs[0].data().score || 0;
+        }
+
+        // Calculate skills improved (simulated based on interview count for now)
+        const skillsCount = totalInterviews > 0 ? totalInterviews * 2 : 0; 
+
+        setMetrics({
+          interviewsCompleted: totalInterviews,
+          resumeScore: latestScore,
+          skillsImproved: skillsCount,
+        });
+
+      } catch (error) {
+        console.error("Error fetching dashboard metrics:", error);
+      }
+    };
+
+    fetchUserMetrics();
+  }, [user]);
 
   return (
     <div className="p-6 space-y-10">
@@ -75,24 +126,24 @@ const Dashboard = () => {
           <Card className="shadow rounded-2xl hover:shadow-md transition">
             <CardContent className="p-6 text-center">
               <p className="text-gray-500 text-sm">Interviews Completed</p>
-              <h3 className="text-3xl font-bold mt-2">0</h3>
-              <span className="text-xs text-green-500">+3 this week</span>
+              <h3 className="text-3xl font-bold mt-2">{metrics.interviewsCompleted}</h3>
+              <span className="text-xs text-green-500">Updated today</span>
             </CardContent>
           </Card>
 
           <Card className="shadow rounded-2xl hover:shadow-md transition">
             <CardContent className="p-6 text-center">
               <p className="text-gray-500 text-sm">Resume Score</p>
-              <h3 className="text-3xl font-bold mt-2">0%</h3>
-              <span className="text-xs text-gray-400">Excellent rating</span>
+              <h3 className="text-3xl font-bold mt-2">{metrics.resumeScore}%</h3>
+              <span className="text-xs text-gray-400">Based on last upload</span>
             </CardContent>
           </Card>
 
           <Card className="shadow rounded-2xl hover:shadow-md transition">
             <CardContent className="p-6 text-center">
               <p className="text-gray-500 text-sm">Skills Improved</p>
-              <h3 className="text-3xl font-bold mt-2">0</h3>
-              <span className="text-xs text-gray-400">Key areas this month</span>
+              <h3 className="text-3xl font-bold mt-2">{metrics.skillsImproved}</h3>
+              <span className="text-xs text-gray-400">Key areas mapped</span>
             </CardContent>
           </Card>
         </div>
