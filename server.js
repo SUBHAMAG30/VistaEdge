@@ -7,7 +7,9 @@ import Groq from "groq-sdk"; // ✅ using Groq instead of OpenAI
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: "http://localhost:5173" })); // frontend URL
+app.use(cors({ 
+  origin: ["http://localhost:5173", "https://vista-edge.vercel.app"] 
+})); // frontend URL
 
 // 🔧 FIX 1: Increase payload limit for uploaded PDF text strings
 app.use(express.json({ limit: '10mb' }));
