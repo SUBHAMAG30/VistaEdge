@@ -2,18 +2,16 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import Groq from "groq-sdk"; // ✅ using Groq instead of OpenAI
+import Groq from "groq-sdk"; 
 
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: "*" })); // frontend URL
+app.use(cors({ origin: "*" })); 
 
-// 🔧 FIX 1: Increase payload limit for uploaded PDF text strings
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// ✅ Initialize Groq client
 const client = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
@@ -29,12 +27,10 @@ app.post("/generateQuestion", async (req, res) => {
       return res.status(400).json({ error: "Missing resume data." });
     }
 
-    // 🔹 Detect type of resume (PDF text OR structured form)
     let resumeSummary = "";
     if (resumeData.text) {
-      resumeSummary = resumeData.text.slice(0, 2000); // avoid huge prompts
+      resumeSummary = resumeData.text.slice(0, 2000); 
     } else {
-      // Build structured summary string
       resumeSummary = `
         Name: ${resumeData.name || "N/A"}
         Email: ${resumeData.email || "N/A"}
@@ -45,17 +41,16 @@ app.post("/generateQuestion", async (req, res) => {
       `;
     }
 
-    // 🔹 Ask Groq to generate a question
     const completion = await client.chat.completions.create({
-      model: "openai/gpt-oss-20b", 
+      model: "mixtral-8x7b-32768", // ✅ Reliable free-tier model
       messages: [
         {
           role: "system",
-          content: "You are an interview question generator. Only return plain questions, no extra text.",
+          content: "You are an interview question generator. Only return the question, no extra text.",
         },
         {
           role: "user",
-          content: `Generate ${count} clear, technical interview questions based on this resume:\n\n${resumeSummary}\n\nReturn them as a JSON array of strings.`,
+          content: `Generate a clear, technical interview question based on this resume:\n\n${resumeSummary}`,
         },
       ],
       temperature: 0.7,
@@ -76,9 +71,6 @@ app.post("/generateQuestion", async (req, res) => {
 
 // ========================
 // 🔹 Multiple Questions Route
-
-// ========================
-// 🔹 Multiple Questions Route (Fixed)
 // ========================
 app.post("/generateQuestions", async (req, res) => {
   try {
@@ -88,7 +80,6 @@ app.post("/generateQuestions", async (req, res) => {
       return res.status(400).json({ error: "Missing resume data." });
     }
 
-    // 🔹 Build resume summary (same as single-question route)
     let resumeSummary = "";
     if (resumeData.text) {
       resumeSummary = resumeData.text.slice(0, 2000);
@@ -103,9 +94,8 @@ app.post("/generateQuestions", async (req, res) => {
       `;
     }
 
-    // 🔹 Ask Groq for multiple questions
     const completion = await client.chat.completions.create({
-      model: "openai/gpt-oss-20b", 
+      model: "mixtral-8x7b-32768", // ✅ Reliable free-tier model
       messages: [
         {
           role: "system",
@@ -119,8 +109,6 @@ app.post("/generateQuestions", async (req, res) => {
       temperature: 0.7,
     });
 
-
-
     let rawOutput = completion.choices[0]?.message?.content?.trim();
     console.log("🔹 Raw Groq Output:", rawOutput);
 
@@ -130,14 +118,11 @@ app.post("/generateQuestions", async (req, res) => {
     try {
       questions = JSON.parse(rawOutput);
     } catch (e) {
-      // fallback: split by line breaks if not JSON
       questions = rawOutput.split("\n").filter((q) => q.trim().length > 0);
     }
 
     if (!questions || !Array.isArray(questions)) {
-      return res
-        .status(500)
-        .json({ error: "Groq did not return valid questions." });
+      return res.status(500).json({ error: "Groq did not return valid questions." });
     }
 
     res.json({ questions });
@@ -159,7 +144,7 @@ app.post("/evaluateAnswer", async (req, res) => {
     }
 
     const completion = await client.chat.completions.create({
-      model: "openai/gpt-oss-20b",
+      model: "mixtral-8x7b-32768", // ✅ Reliable free-tier model
       messages: [
         {
           role: "system",
@@ -180,7 +165,6 @@ app.post("/evaluateAnswer", async (req, res) => {
     try {
       evaluation = JSON.parse(rawOutput);
     } catch (e) {
-      // Fallback if the model adds extra text outside JSON
       evaluation = { 
         score: 7, 
         feedback: rawOutput, 
@@ -195,7 +179,6 @@ app.post("/evaluateAnswer", async (req, res) => {
   }
 });
 
-
 app.listen(5000, () =>
-  console.log("✅ Server running on http://localhost:5000")
+  console.log("✅ Server running on Port 5000")
 );
