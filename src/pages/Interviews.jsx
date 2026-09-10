@@ -43,8 +43,8 @@ export default function Interviews() {
     setResumeText(text)
 
     try {
-      // 🔧 FIX: Directly call your multiple-questions backend route
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/generateQuestions`, {
+      // 🚀 FIX: Hardcoded Render URL to bypass Vercel variable glitches
+      const res = await fetch(`https://vistaedge.onrender.com/generateQuestions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resumeData: { text }, count: 5 }),
@@ -100,8 +100,8 @@ export default function Interviews() {
     setEvaluating(true);
 
     try {
-      // 2. Call backend to grade the answer
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/evaluateAnswer`, {
+      // 🚀 FIX: Hardcoded Render URL here too!
+      const res = await fetch(`https://vistaedge.onrender.com/evaluateAnswer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: questions[currentIndex], answer }),
