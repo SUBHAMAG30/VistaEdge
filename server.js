@@ -42,7 +42,7 @@ app.post("/generateQuestion", async (req, res) => {
     }
 
     const completion = await client.chat.completions.create({
-      model: "mixtral-8x7b-32768", // ✅ Reliable free-tier model
+      model: "gemma2-9b-it", // ✅ Reliable free-tier model
       messages: [
         {
           role: "system",
@@ -95,7 +95,7 @@ app.post("/generateQuestions", async (req, res) => {
     }
 
     const completion = await client.chat.completions.create({
-      model: "mixtral-8x7b-32768", // ✅ Reliable free-tier model
+      model: "gemma2-9b-it", // ✅ Reliable free-tier model
       messages: [
         {
           role: "system",
@@ -144,7 +144,7 @@ app.post("/evaluateAnswer", async (req, res) => {
     }
 
     const completion = await client.chat.completions.create({
-      model: "mixtral-8x7b-32768", // ✅ Reliable free-tier model
+      model: "gemma2-9b-it", // ✅ Reliable free-tier model
       messages: [
         {
           role: "system",
